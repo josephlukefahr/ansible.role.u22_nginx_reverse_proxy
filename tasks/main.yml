@@ -1,0 +1,15 @@
+---
+- name: nginx http endpoint config in place
+  notify: restart nginx
+  ansible.builtin.template:
+    src: http_endpoint
+    dest: /etc/nginx/sites-available
+    owner: root
+    group: root
+    mode: "0644"
+- name: nginx http endpoint enabled
+  notify: restart nginx
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/http_endpoint
+    dest: /etc/nginx/sites-enabled/http_endpoint
+    state: link

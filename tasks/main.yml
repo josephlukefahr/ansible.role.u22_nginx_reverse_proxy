@@ -1,7 +1,9 @@
 ---
 - name: certbot installed
   ansible.builtin.apt:
-    name: certbot
+    name: 
+      - python3-certbot
+      - python3-certbot-nginx
     state: latest
 - name: certificate presence checked
   ansible.builtin.stat:

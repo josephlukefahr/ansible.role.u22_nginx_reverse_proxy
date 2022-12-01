@@ -1,15 +1,40 @@
 ---
-- name: nginx http endpoint config in place
+- name: certbot installed
+  ansible.builtin.apt:
+    name: certbot
+    state: latest
+- name: certificate presence checked
+  ansible.builtin.stat:
+    path: /etc/letsencrypt/live/{{u22_domain_info.name | first | replace('*.', '')}}/cert.pem
+  register: letsencrypt_cert
+- name: nginx stopped, if existing cert not present
+  ansible.builtin.service:
+    name: nginx
+    state: stopped
+    when: not letsencrypt_cert.stat.exists
+- name: new certificate created, if existing cert not present
+  ansible.builtin.command: >-
+    certbot --non-interactive --agree-tos --nginx
+    --domains {{u22_domain_info.name | join(',')}}
+    --email {{u22_domain_info.admin_email}}
+    {{"--test-cert" if u22_certbot_test else ""}}
+  when: not letsencrypt_cert.stat.exists
+- name: nginx started, if existing cert not present
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    when: not letsencrypt_cert.stat.exists
+- name: nginx reverse proxy config in place
   notify: restart nginx
   ansible.builtin.template:
-    src: http_endpoint
+    src: reverse_proxy
     dest: /etc/nginx/sites-available
     owner: root
     group: root
     mode: "0644"
-- name: nginx http endpoint enabled
+- name: nginx reverse proxy enabled
   notify: restart nginx
   ansible.builtin.file:
-    src: /etc/nginx/sites-available/http_endpoint
-    dest: /etc/nginx/sites-enabled/http_endpoint
+    src: /etc/nginx/sites-available/reverse_proxy
+    dest: /etc/nginx/sites-enabled/reverse_proxy
     state: link

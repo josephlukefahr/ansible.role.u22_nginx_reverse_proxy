@@ -1,3 +1,3 @@
 ---
 u22_nginx_reverse_proxy_backend_port: 8080
-u22_certbot_test: yes
+u22_certbot_test: no

@@ -11,7 +11,7 @@
   ansible.builtin.service:
     name: nginx
     state: stopped
-    when: not letsencrypt_cert.stat.exists
+  when: not letsencrypt_cert.stat.exists
 - name: new certificate created, if existing cert not present
   ansible.builtin.command: >-
     certbot --non-interactive --agree-tos --nginx
@@ -23,7 +23,7 @@
   ansible.builtin.service:
     name: nginx
     state: started
-    when: not letsencrypt_cert.stat.exists
+  when: not letsencrypt_cert.stat.exists
 - name: nginx reverse proxy config in place
   notify: restart nginx
   ansible.builtin.template:

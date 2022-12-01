@@ -6,7 +6,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/{{u22_domain_info.name | first | replace('*.', '')}}/privkey.pem; # managed by Certbot
     ssl_trusted_certificate /etc/letsencrypt/live/{{u22_domain_info.name | first | replace('*.', '')}}/chain.pem; # managed by Certbot
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
-    include /etc/letsencrypt/nginx-ssl-options.conf; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
     location / {
             proxy_pass              http://localhost:{{u22_nginx_reverse_proxy_backend_port}};
             proxy_set_header        Host $host;

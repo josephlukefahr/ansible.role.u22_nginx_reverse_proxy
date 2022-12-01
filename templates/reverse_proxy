@@ -1,6 +1,6 @@
 server {
-    listen 80;
-    listen 443 ssl http2;
+    listen [::]:80{{" default_server ipv6only=off" if u22_nginx_default_server == "reverse_proxy" else ""}};
+    listen [::]:443 ssl http2{{" default_server ipv6only=off" if u22_nginx_default_server == "reverse_proxy" else ""}};
     server_name {{u22_domain_info.name | join(' ')}};
     ssl_certificate /etc/letsencrypt/live/{{u22_domain_info.name | first | replace('*.', '')}}/fullchain.pem; # managed by Certbot
     ssl_certificate_key /etc/letsencrypt/live/{{u22_domain_info.name | first | replace('*.', '')}}/privkey.pem; # managed by Certbot

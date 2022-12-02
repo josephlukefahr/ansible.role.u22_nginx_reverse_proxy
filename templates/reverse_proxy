@@ -22,14 +22,15 @@ server {
 }
 
 server {
-    listen [::]:443 ssl http2;
-    server_name {{u22_domain_info.aliases | join(' ')}};
+    listen [::]:80;
+    server_name {{u22_domain_info.name}};
     return 301 https://{{u22_domain_info.name}}$request_uri;
 }
 
 server {
     listen [::]:80;
-    server_name {{u22_domain_info.name}} {{u22_domain_info.aliases | join(' ')}};
+    listen [::]:443;
+    server_name {{u22_domain_info.aliases | join(' ')}};
     return 301 https://{{u22_domain_info.name}}$request_uri;
 }
 

@@ -7,7 +7,7 @@
     state: latest
 - name: certificate presence checked
   ansible.builtin.stat:
-    path: /etc/letsencrypt/live/{{u22_domain_info.name | first | replace('*.', '')}}/cert.pem
+    path: /etc/letsencrypt/live/{{u22_domain_info.name | replace('*.', '')}}/cert.pem
   register: letsencrypt_cert
 - name: nginx stopped, if existing cert not present
   ansible.builtin.service:

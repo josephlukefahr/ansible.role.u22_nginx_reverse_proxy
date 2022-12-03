@@ -5,18 +5,25 @@
       - python3-certbot
       - python3-certbot-nginx
     state: latest
+- name: certificate presence checked
+  ansible.builtin.stat:
+    path: /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/cert.pem
+  register: letsencrypt_cert
 - name: firewall temporarily opened for http, for certbot verification
+  when: not letsencrypt_cert.stat.exists
   community.general.ufw:
     rule: allow
     port: http
     proto: tcp
 - name: new certificate created
+  when: not letsencrypt_cert.stat.exists
   ansible.builtin.command: >-
     certbot --non-interactive --agree-tos --nginx
     --domains {{u22_nginx_reverse_proxy_fqdns | join(',')}}
     --email {{u22_nginx_reverse_proxy_admin_email}}
     {{"--test-cert" if u22_certbot_test else ""}}
 - name: firewall closed for http
+  when: not letsencrypt_cert.stat.exists
   community.general.ufw:
     rule: deny
     port: http

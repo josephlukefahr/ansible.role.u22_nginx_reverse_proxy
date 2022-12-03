@@ -4,11 +4,13 @@
     rule: allow
     port: http
     proto: tcp
+  when: u22_nginx_reverse_proxy_live
 - name: firewall opened for https
   community.general.ufw:
     rule: allow
     port: https
     proto: tcp
+  when: u22_nginx_reverse_proxy_live
 - name: certbot installed
   ansible.builtin.apt:
     name: 

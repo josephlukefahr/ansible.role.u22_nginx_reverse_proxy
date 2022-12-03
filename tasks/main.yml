@@ -1,4 +1,14 @@
 ---
+- name: firewall opened for http
+  community.general.ufw:
+    rule: allow
+    port: http
+    proto: tcp
+- name: firewall opened for https
+  community.general.ufw:
+    rule: allow
+    port: https
+    proto: tcp
 - name: certbot installed
   ansible.builtin.apt:
     name: 

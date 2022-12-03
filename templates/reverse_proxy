@@ -1,9 +1,9 @@
 server {
     listen [::]:443 ssl http2;
-    server_name {{u22_domain_info.name}};
-    ssl_certificate /etc/letsencrypt/live/{{u22_domain_info.name}}/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/{{u22_domain_info.name}}/privkey.pem; # managed by Certbot
-    ssl_trusted_certificate /etc/letsencrypt/live/{{u22_domain_info.name}}/chain.pem; # managed by Certbot
+    server_name {{u22_nginx_reverse_proxy_fqdns | first}};
+    ssl_certificate /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/privkey.pem; # managed by Certbot
+    ssl_trusted_certificate /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/chain.pem; # managed by Certbot
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
     include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
     location / {
@@ -11,7 +11,7 @@ server {
             proxy_set_header        Host $host;
             proxy_set_header        X-Real-IP $remote_addr;
             proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header        X-Forwarded-Host {{u22_domain_info.name}};
+            proxy_set_header        X-Forwarded-Host {{u22_nginx_reverse_proxy_fqdns | first}};
             proxy_http_version      1.1;
             proxy_buffer_size 128k;
             proxy_buffers 4 256k;
@@ -23,17 +23,17 @@ server {
 
 server {
     listen [::]:443 ssl http2 default_server ipv6only=off;
-    server_name {{u22_domain_info.aliases | join(' ')}};
-    ssl_certificate /etc/letsencrypt/live/{{u22_domain_info.name}}/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/{{u22_domain_info.name}}/privkey.pem; # managed by Certbot
-    ssl_trusted_certificate /etc/letsencrypt/live/{{u22_domain_info.name}}/chain.pem; # managed by Certbot
+    server_name {{u22_nginx_reverse_proxy_fqdns | intersect(u22_nginx_reverse_proxy_fqdns | first) | join(' ')}};
+    ssl_certificate /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/privkey.pem; # managed by Certbot
+    ssl_trusted_certificate /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/chain.pem; # managed by Certbot
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
     include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-    return 301 https://{{u22_domain_info.name}}$request_uri;
+    return 301 https://{{u22_nginx_reverse_proxy_fqdns | first}}$request_uri;
 }
 
 server {
     listen [::]:80 default_server ipv6only=off;
-    server_name {{u22_domain_info.name}} {{u22_domain_info.aliases | join(' ')}};
-    return 301 https://{{u22_domain_info.name}}$request_uri;
+    server_name {{u22_nginx_reverse_proxy_fqdns | join(' ')}};
+    return 301 https://{{u22_nginx_reverse_proxy_fqdns | first}}$request_uri;
 }

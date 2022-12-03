@@ -45,14 +45,14 @@
 - name: firewall opened for http, only from firewall
   community.general.ufw:
     rule: allow
-    from_ip: {{u22_nginx_reverse_proxy_firewall_ip}}
+    from_ip: "{{u22_nginx_reverse_proxy_firewall_ip}}"
     port: http
     proto: tcp
   when: u22_nginx_reverse_proxy_live
 - name: firewall opened for https, only from firewall
   community.general.ufw:
     rule: allow
-    from_ip: {{u22_nginx_reverse_proxy_firewall_ip}}
+    from_ip: "{{u22_nginx_reverse_proxy_firewall_ip}}"
     port: https
     proto: tcp
   when: u22_nginx_reverse_proxy_live

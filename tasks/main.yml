@@ -1,16 +1,4 @@
 ---
-- name: firewall opened for http
-  community.general.ufw:
-    rule: allow
-    port: http
-    proto: tcp
-  when: u22_nginx_reverse_proxy_live
-- name: firewall opened for https
-  community.general.ufw:
-    rule: allow
-    port: https
-    proto: tcp
-  when: u22_nginx_reverse_proxy_live
 - name: certbot installed
   ansible.builtin.apt:
     name: 
@@ -21,10 +9,11 @@
   ansible.builtin.stat:
     path: /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/cert.pem
   register: letsencrypt_cert
-- name: nginx stopped, if existing cert not present
-  ansible.builtin.service:
-    name: nginx
-    state: stopped
+- name: firewall temporarily opened for https, for certbot verification if cert not present
+  community.general.ufw:
+    rule: allow
+    port: https
+    proto: tcp
   when: not letsencrypt_cert.stat.exists
 - name: new certificate created, if existing cert not present
   ansible.builtin.command: >-
@@ -32,10 +21,11 @@
     --domains {{u22_nginx_reverse_proxy_fqdns | join(',')}}
     --email {{u22_nginx_reverse_proxy_admin_email}}
   when: not letsencrypt_cert.stat.exists
-- name: nginx started, if existing cert not present
-  ansible.builtin.service:
-    name: nginx
-    state: started
+- name: firewall closed for https, if cert not present
+  community.general.ufw:
+    rule: deny
+    port: https
+    proto: tcp
   when: not letsencrypt_cert.stat.exists
 - name: nginx reverse proxy config in place
   notify: restart nginx
@@ -51,3 +41,15 @@
     src: /etc/nginx/sites-available/reverse_proxy
     dest: /etc/nginx/sites-enabled/reverse_proxy
     state: link
+- name: firewall opened for http
+  community.general.ufw:
+    rule: allow
+    port: http
+    proto: tcp
+  when: u22_nginx_reverse_proxy_live
+- name: firewall opened for https
+  community.general.ufw:
+    rule: allow
+    port: https
+    proto: tcp
+  when: u22_nginx_reverse_proxy_live

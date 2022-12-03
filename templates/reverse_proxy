@@ -1,7 +1,7 @@
 server {
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
-    server_name {{u22_nginx_reverse_proxy_fqdns | first}};
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+    server_name _;
     ssl_certificate /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/fullchain.pem; # managed by Certbot
     ssl_certificate_key /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/privkey.pem; # managed by Certbot
     ssl_trusted_certificate /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/chain.pem; # managed by Certbot
@@ -23,20 +23,8 @@ server {
 }
 
 server {
-    listen 443 ssl http2 default_server;
-    listen [::]:443 ssl http2 default_server;
-    server_name _;
-    ssl_certificate /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/privkey.pem; # managed by Certbot
-    ssl_trusted_certificate /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/chain.pem; # managed by Certbot
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
-    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-    return 301 https://{{u22_nginx_reverse_proxy_fqdns | first}}$request_uri;
-}
-
-server {
     listen 80 default_server;
     listen [::]:80 default_server;
     server_name _;
-    return 301 https://{{u22_nginx_reverse_proxy_fqdns | first}}$request_uri;
+    return 301 https://$host$request_uri;
 }

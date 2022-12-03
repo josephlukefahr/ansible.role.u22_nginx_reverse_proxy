@@ -7,7 +7,7 @@
     state: latest
 - name: certificate presence checked
   ansible.builtin.stat:
-    path: /etc/letsencrypt/live/{{u22_domain_info.name | replace('*.', '')}}/cert.pem
+    path: /etc/letsencrypt/live/{{u22_nginx_reverse_proxy_fqdns | first | replace('*.', '')}}/cert.pem
   register: letsencrypt_cert
 - name: nginx stopped, if existing cert not present
   ansible.builtin.service:
@@ -17,8 +17,8 @@
 - name: new certificate created, if existing cert not present
   ansible.builtin.command: >-
     certbot --non-interactive --agree-tos --nginx
-    --domains {{u22_domain_info.name}},{{u22_domain_info.aliases | join(',')}}
-    --email {{u22_domain_info.admin_email}}
+    --domains {{u22_nginx_reverse_proxy_fqdns | join(',')}}
+    --email {{u22_nginx_reverse_proxy_admin_email}}
     {{"--test-cert" if u22_certbot_test else ""}}
   when: not letsencrypt_cert.stat.exists
 - name: nginx started, if existing cert not present

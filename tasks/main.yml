@@ -42,17 +42,11 @@
     src: /etc/nginx/sites-available/reverse_proxy
     dest: /etc/nginx/sites-enabled/reverse_proxy
     state: link
-- name: firewall opened for http, only from firewall
+- name: firewall opened for https, only from whitelisted ips
   community.general.ufw:
     rule: allow
-    from_ip: "{{u22_nginx_reverse_proxy_firewall_ip}}"
-    port: http
-    proto: tcp
-  when: u22_nginx_reverse_proxy_live
-- name: firewall opened for https, only from firewall
-  community.general.ufw:
-    rule: allow
-    from_ip: "{{u22_nginx_reverse_proxy_firewall_ip}}"
+    from_ip: "{{item}}"
     port: https
     proto: tcp
+  loop: "{{u22_nginx_reverse_proxy_whitelisted_ips}}"
   when: u22_nginx_reverse_proxy_live
